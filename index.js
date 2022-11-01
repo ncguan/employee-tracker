@@ -281,8 +281,7 @@ function updateEmployee() {
                                     roleId = roles[i].id;
                                 }
                             }
-                            console.log(roleId);
-                            console.log(employeeId);
+
                             db.promise().query(`UPDATE employee 
                             SET role_id = ${roleId}
                             WHERE id = ${employeeId};`)
