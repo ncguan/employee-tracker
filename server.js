@@ -49,6 +49,7 @@ function askQuestion() {
                     break;
                 case 'add a role':
                     console.log("addding a role");
+                    addRole();
                     break;
                 case 'add an employee':
                     console.log("adding an employee");
@@ -114,6 +115,53 @@ function addDepartment() {
                     askQuestion();
                 })
                 .catch(console.log)
+        });
+}
+
+function addRole() {
+    const departmentNames = [];
+    const departments = [];
+    let departmentId;
+    db.query('SELECT * FROM department', function (err, results) {
+        for (let i = 0; i < results.length; i++) {
+            departmentNames.push(results[i].name);
+            departments.push(results[i]);
+        }
+    });
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'roleName',
+                message: "What is the name of the role?",
+            },
+            {
+                type: 'input',
+                name: 'roleSalary',
+                message: "What is the salary of the role?",
+            },
+            {
+                type: 'list',
+                name: 'roleDepartment',
+                message: "What is the name of the role?",
+                choices: departmentNames
+            },
+        ])
+        .then((answer) => {
+            for (let i = 0; i < departments.length; i++) {
+                if (answer.roleDepartment == departments[i].name) {
+                    departmentId = departments[i].id;
+                }
+            }
+            db.promise().query(`INSERT INTO role (title, salary, department_id)
+            VALUES ('${answer.roleName}', '${answer.roleSalary}', '${departmentId}');`)
+                .then(([rows, fields]) => {
+                    console.log(`Added ${answer.departmentAdd} to the database`);
+                    askQuestion();
+                })
+                .catch(console.log)
+            console.log(`Added ${answer.roleName} to the database`);
         });
 }
 
