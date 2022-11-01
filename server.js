@@ -41,6 +41,7 @@ function askQuestion() {
                     break;
                 case "view all employees":
                     console.log("viewing all employees");
+                    viewEmployees();
                     break;
                 case 'add a department':
                     console.log("adding a department");
@@ -75,6 +76,19 @@ function viewRoles() {
     db.promise().query(`SELECT role.id, role.title, department.name AS department, role.salary
     FROM role 
     JOIN department ON department.id = role.department_id;`)
+        .then(([rows, fields]) => {
+            console.table(rows);
+            askQuestion();
+        })
+        .catch(console.log)
+}
+
+function viewEmployees() {
+    db.promise().query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, A.first_name AS manager
+    FROM employee
+    JOIN role ON employee.role_id = role.id
+    JOIN department ON role.department_id = department.id
+    LEFT JOIN employee A ON A.id = employee.manager_id;`)
         .then(([rows, fields]) => {
             console.table(rows);
             askQuestion();
