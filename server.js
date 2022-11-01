@@ -57,6 +57,7 @@ function askQuestion() {
                     break;
                 case 'update an employee role':
                     console.log("updating an empoyee role");
+                    updateEmployee();
                     break;
                 case 'Quit':
                     console.log("quitting");
@@ -220,7 +221,7 @@ function addEmployee() {
                 if (answer.employeeManager == employees[i].employee_name) {
                     employeeId = employees[i].id;
                 }
-                else{
+                else {
                     employeeId = null;
                 }
             }
@@ -232,6 +233,69 @@ function addEmployee() {
                 })
                 .catch(console.log)
         });
+}
+
+function updateEmployee() {
+    const roleNames = [];
+    const roles = [];
+    const employeeNames = [];
+    const employees = [];
+    let roleId;
+    let employeeId;
+
+    db.promise().query(`SELECT id, concat(first_name, ' ', last_name) AS employee_name FROM employee`)
+        .then(([rows, fields]) => {
+            for (let i = 0; i < rows.length; i++) {
+                employeeNames.push(rows[i].employee_name);
+                employees.push(rows[i]);
+            }
+            db.promise().query(`SELECT * FROM role`)
+                .then(([rows, fields]) => {
+                    for (let i = 0; i < rows.length; i++) {
+                        roleNames.push(rows[i].title);
+                        roles.push(rows[i]);
+                    }
+                    inquirer
+                        .prompt([
+                            {
+                                type: 'list',
+                                name: 'employeeName',
+                                message: "Which employee's role do you want to update?",
+                                choices: employeeNames
+                            },
+                            {
+                                type: 'list',
+                                name: 'updateRole',
+                                message: "Which role do you want to assign the selected employee?",
+                                choices: roleNames
+                            },
+                        ])
+                        .then((answer) => {
+                            for (let i = 0; i < employees.length; i++) {
+                                if (answer.employeeName == employees[i].employee_name) {
+                                    employeeId = employees[i].id;
+                                }
+                            }
+                            for (let i = 0; i < roles.length; i++) {
+                                if (answer.updateRole == roles[i].title) {
+                                    roleId = roles[i].id;
+                                }
+                            }
+                            console.log(roleId);
+                            console.log(employeeId);
+                            db.promise().query(`UPDATE employee 
+                            SET role_id = ${roleId}
+                            WHERE id = ${employeeId};`)
+                                .then(([rows, fields]) => {
+                                    console.log(`Updated ${answer.employeeName}'s role`);
+                                    askQuestion();
+                                })
+                                .catch(console.log)
+                        });
+                })
+                .catch(console.log)
+        })
+        .catch(console.log)
 }
 
 init();
