@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
+const process = require('process');
 
 const db = mysql.createConnection(
     {
@@ -16,7 +17,7 @@ const question = [
         type: 'list',
         name: 'action',
         message: "What would you like to do?",
-        choices: ["view all departments", "view all roles", "view all employees", "add a department", "add a role", "add an employee", "update an employee role", "Quit"]
+        choices: ["View All Employees", "Add an Employee", "Update an Employee's Role", "View All Roles", "Add a Role", "View All Departments", "Add a Department", "Exit"]
     },
 ];
 
@@ -30,30 +31,30 @@ function askQuestion() {
         .prompt(question)
         .then((answer) => {
             switch (answer.action) {
-                case 'view all departments':
+                case 'View All Departments':
                     viewDepartments();
                     break;
-                case 'view all roles':
+                case 'View All Roles':
                     viewRoles();
                     break;
-                case "view all employees":
+                case "View All Employees":
                     viewEmployees();
                     break;
-                case 'add a department':
+                case 'Add a Department':
                     addDepartment();
                     break;
-                case 'add a role':
+                case 'Add a Role':
                     addRole();
                     break;
-                case 'add an employee':
+                case 'Add an Employee':
                     addEmployee();
                     break;
-                case 'update an employee role':
+                case `Update an Employee's Role`:
                     updateEmployee();
                     break;
-                case 'Quit':
-                    selected = "Quit";
-                    break;
+                case 'Exit':
+                    selected = "Exit";
+                    process.exit();
             }
         });
 }
