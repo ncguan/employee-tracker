@@ -45,6 +45,7 @@ function askQuestion() {
                     break;
                 case 'add a department':
                     console.log("adding a department");
+                    addDepartment();
                     break;
                 case 'add a role':
                     console.log("addding a role");
@@ -94,6 +95,26 @@ function viewEmployees() {
             askQuestion();
         })
         .catch(console.log)
+}
+
+function addDepartment() {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'departmentAdd',
+                message: "What is the name of the department?",
+            },
+        ])
+        .then((answer) => {
+            db.promise().query(`INSERT INTO department (name)
+            VALUES ('${answer.departmentAdd}');`)
+                .then(([rows, fields]) => {
+                    console.log(`Added ${answer.departmentAdd} to the database`);
+                    askQuestion();
+                })
+                .catch(console.log)
+        });
 }
 
 init();
