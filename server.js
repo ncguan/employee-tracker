@@ -37,6 +37,7 @@ function askQuestion() {
                     break;
                 case 'view all roles':
                     console.log("viewing roles");
+                    viewRoles();
                     break;
                 case "view all employees":
                     console.log("viewing all employees");
@@ -63,6 +64,17 @@ function askQuestion() {
 
 function viewDepartments() {
     db.promise().query("SELECT * FROM department")
+        .then(([rows, fields]) => {
+            console.table(rows);
+            askQuestion();
+        })
+        .catch(console.log)
+}
+
+function viewRoles() {
+    db.promise().query(`SELECT role.id, role.title, department.name AS department, role.salary
+    FROM role 
+    JOIN department ON department.id = role.department_id;`)
         .then(([rows, fields]) => {
             console.table(rows);
             askQuestion();
