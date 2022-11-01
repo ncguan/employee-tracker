@@ -9,7 +9,6 @@ const db = mysql.createConnection(
         password: '1234',
         database: 'employees_db'
     },
-    console.log(`Connected to the employees_db database.`)
 );
 
 const question = [
@@ -32,35 +31,27 @@ function askQuestion() {
         .then((answer) => {
             switch (answer.action) {
                 case 'view all departments':
-                    console.log("viewing departments");
                     viewDepartments();
                     break;
                 case 'view all roles':
-                    console.log("viewing roles");
                     viewRoles();
                     break;
                 case "view all employees":
-                    console.log("viewing all employees");
                     viewEmployees();
                     break;
                 case 'add a department':
-                    console.log("adding a department");
                     addDepartment();
                     break;
                 case 'add a role':
-                    console.log("addding a role");
                     addRole();
                     break;
                 case 'add an employee':
-                    console.log("adding an employee");
                     addEmployee();
                     break;
                 case 'update an employee role':
-                    console.log("updating an empoyee role");
                     updateEmployee();
                     break;
                 case 'Quit':
-                    console.log("quitting");
                     selected = "Quit";
                     break;
             }
@@ -68,7 +59,7 @@ function askQuestion() {
 }
 
 function viewDepartments() {
-    db.promise().query("SELECT * FROM department")
+    db.promise().query("SELECT * FROM department ORDER BY department.id ASC")
         .then(([rows, fields]) => {
             console.table(rows);
             askQuestion();
@@ -79,7 +70,8 @@ function viewDepartments() {
 function viewRoles() {
     db.promise().query(`SELECT role.id, role.title, department.name AS department, role.salary
     FROM role 
-    JOIN department ON department.id = role.department_id;`)
+    JOIN department ON department.id = role.department_id
+    ORDER BY role.id ASC;`)
         .then(([rows, fields]) => {
             console.table(rows);
             askQuestion();
@@ -92,7 +84,8 @@ function viewEmployees() {
     FROM employee
     JOIN role ON employee.role_id = role.id
     JOIN department ON role.department_id = department.id
-    LEFT JOIN employee A ON A.id = employee.manager_id;`)
+    LEFT JOIN employee A ON A.id = employee.manager_id
+    ORDER BY employee.id ASC;`)
         .then(([rows, fields]) => {
             console.table(rows);
             askQuestion();
@@ -146,7 +139,7 @@ function addRole() {
             {
                 type: 'list',
                 name: 'roleDepartment',
-                message: "What is the name of the role?",
+                message: "Which department does the role belong to?",
                 choices: departmentNames
             },
         ])
