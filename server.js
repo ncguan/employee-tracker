@@ -53,6 +53,7 @@ function askQuestion() {
                     break;
                 case 'add an employee':
                     console.log("adding an employee");
+                    addEmployee();
                     break;
                 case 'update an employee role':
                     console.log("updating an empoyee role");
@@ -157,11 +158,79 @@ function addRole() {
             db.promise().query(`INSERT INTO role (title, salary, department_id)
             VALUES ('${answer.roleName}', '${answer.roleSalary}', '${departmentId}');`)
                 .then(([rows, fields]) => {
-                    console.log(`Added ${answer.departmentAdd} to the database`);
+                    console.log(`Added ${answer.roleName} to the database`);
                     askQuestion();
                 })
                 .catch(console.log)
-            console.log(`Added ${answer.roleName} to the database`);
+        });
+}
+
+function addEmployee() {
+    const roleNames = [];
+    const roles = [];
+    const employeeNames = ['None'];
+    const employees = [];
+    let roleId;
+    let employeeId;
+    db.query('SELECT * FROM role', function (err, results) {
+        for (let i = 0; i < results.length; i++) {
+            roleNames.push(results[i].title);
+            roles.push(results[i]);
+        }
+    });
+    db.query(`SELECT id, concat(first_name, ' ', last_name) AS employee_name FROM employee`, function (err, results) {
+        for (let i = 0; i < results.length; i++) {
+            employeeNames.push(results[i].employee_name);
+            employees.push(results[i]);
+        }
+    });
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'employeeFirstName',
+                message: "What is the employee's first name?",
+            },
+            {
+                type: 'input',
+                name: 'employeeLastName',
+                message: "What is the employee's last name?",
+            },
+            {
+                type: 'list',
+                name: 'employeeRole',
+                message: "What is the employee's role?",
+                choices: roleNames
+            },
+            {
+                type: 'list',
+                name: 'employeeManager',
+                message: "What is the employee's manager?",
+                choices: employeeNames
+            },
+        ])
+        .then((answer) => {
+            for (let i = 0; i < roles.length; i++) {
+                if (answer.employeeRole == roles[i].title) {
+                    roleId = roles[i].id;
+                }
+            }
+            for (let i = 0; i < employees.length; i++) {
+                if (answer.employeeManager == employees[i].employee_name) {
+                    employeeId = employees[i].id;
+                }
+                else{
+                    employeeId = null;
+                }
+            }
+            db.promise().query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+            VALUES ('${answer.employeeFirstName}', '${answer.employeeLastName}', '${roleId}', ${employeeId});`)
+                .then(([rows, fields]) => {
+                    console.log(`Added ${answer.employeeFirstName} ${answer.employeeLastName} to the database`);
+                    askQuestion();
+                })
+                .catch(console.log)
         });
 }
 
